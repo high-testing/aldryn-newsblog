@@ -285,6 +285,9 @@ class NewsBlogCMSPlugin(CMSPlugin):
 
     app_config = models.ForeignKey(NewsBlogConfig, verbose_name=_('Apphook configuration'))
 
+    dynamic_category_config = models.BooleanField(default=False, verbose_name=_('Use the ALDRYN_NEWSBLOG_CATEGORIES_FROM_REQUEST setting instead of category configuration.'))
+    category_config = CategoryManyToManyField(Category, blank=True, verbose_name=_('Category configuration'), help_text=_('Will be applied if you do not use the ALDRYN_NEWSBLOG_CATEGORIES_FROM_REQUEST setting. If left empty, it will not use any filter on categories.'))
+
     class Meta:
         abstract = True
 
@@ -406,6 +409,20 @@ class NewsBlogFeaturedArticlesPlugin(PluginEditModeMixin, NewsBlogCMSPlugin):
     def get_articles(self, request):
         if not self.article_count:
             return Article.objects.none()
+
+        if self.dynamic_category_config and settings.ALDRYN_NEWSBLOG_CATEGORIES_FROM_REQUEST:
+            attribute_obj = None
+            for attribute in settings.ALDRYN_NEWSBLOG_CATEGORIES_FROM_REQUEST.split('.'):
+                if attribute_obj is None:
+                    attribute_obj = getattr(request, attribute)
+                else:
+                    attribute_obj = getattr(attribute_obj, attribute)
+
+            if attribute_obj is not None:
+                categories = attribute_obj.all()
+        else:
+            categories = self.category_config.all()
+
         queryset = Article.objects
         if not self.get_edit_mode(request):
             queryset = queryset.published()
@@ -416,6 +433,10 @@ class NewsBlogFeaturedArticlesPlugin(PluginEditModeMixin, NewsBlogCMSPlugin):
         queryset = queryset.translated(*languages).filter(
             app_config=self.app_config,
             is_featured=True)
+        if categories.count() != 0:
+            queryset = queryset.filter(
+                categories__in=categories
+            )
         return queryset[:self.article_count]
 
     def __str__(self):
@@ -452,8 +473,24 @@ class NewsBlogLatestArticlesPlugin(PluginEditModeMixin,
         Returns a queryset of the latest N articles. N is the plugin setting:
         latest_articles.
         """
+
+        if self.dynamic_category_config and settings.ALDRYN_NEWSBLOG_CATEGORIES_FROM_REQUEST:
+
+            attribute_obj = None
+            for attribute in settings.ALDRYN_NEWSBLOG_CATEGORIES_FROM_REQUEST.split('.'):
+                if attribute_obj is None:
+                    attribute_obj = getattr(request, attribute)
+                else:
+                    attribute_obj = getattr(attribute_obj, attribute)
+
+            if attribute_obj is not None:
+                categories = attribute_obj.all()
+        else:
+            categories = self.category_config.all()
+
         queryset = Article.objects
         featured_qs = Article.objects.all().filter(is_featured=True)
+
         if not self.get_edit_mode(request):
             queryset = queryset.published()
             featured_qs = featured_qs.published()
@@ -468,6 +505,11 @@ class NewsBlogLatestArticlesPlugin(PluginEditModeMixin,
         exclude_featured = featured_qs.values_list(
             'pk', flat=True)[:self.exclude_featured]
         queryset = queryset.exclude(pk__in=list(exclude_featured))
+
+        if categories.count() != 0:
+            queryset = queryset.filter(
+                categories__in=categories
+            )
         return queryset[:self.latest_articles]
 
     def __str__(self):
