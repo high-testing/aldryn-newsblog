@@ -109,7 +109,46 @@ class Article(TranslatedAutoSlugifyMixin,
             verbose_name=_('meta keywords'), blank=True, default=''),
         meta={'unique_together': (('language_code', 'slug', ), )},
 
-        search_data=models.TextField(blank=True, editable=False)
+        search_data=models.TextField(blank=True, editable=False),
+
+        og_title=models.CharField(
+            max_length=128,
+            verbose_name=_('OG Title'),
+            blank=True,
+            null=True,
+        ),
+        og_description=models.CharField(
+            max_length=320,
+            verbose_name=_('OG Description'),
+            blank=True,
+            null=True,
+        ),
+        og_image=FilerImageField(
+            verbose_name=_('OG Image'),
+            related_name='article_image_og',
+            blank=True,
+            null=True,
+            on_delete=models.PROTECT,
+        ),
+        twitter_title=models.CharField(
+            max_length=128,
+            verbose_name=_('Twitter Title'),
+            blank=True,
+            null=True,
+        ),
+        twitter_description=models.CharField(
+            max_length=320,
+            verbose_name=_('Twitter Description'),
+            blank=True,
+            null=True,
+        ),
+        twitter_image=FilerImageField(
+            verbose_name=_('Twitter Image'),
+            related_name='article_image_twitter',
+            blank=True,
+            null=True,
+            on_delete=models.PROTECT,
+        ),
     )
 
     content = PlaceholderField('newsblog_article_content',

@@ -137,6 +137,22 @@ class ArticleAdmin(
                 'meta_keywords',
             )
         }),
+        (_('OG Tags'), {
+            'classes': ('collapse',),
+            'fields': (
+                'og_title',
+                'og_description',
+                'og_image',
+            )
+        }),
+        (_('Twitter Tags'), {
+            'classes': ('collapse',),
+            'fields': (
+                'twitter_title',
+                'twitter_description',
+                'twitter_image',
+            )
+        }),
         (_('Advanced Settings'), {
             'classes': ('collapse',),
             'fields': (
