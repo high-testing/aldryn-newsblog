@@ -1,0 +1,45 @@
+{% load i18n %}
+{% if article.og_title %}
+  <meta property="og:title" content="{{ article.og_title }}" />
+{% elif article.meta_title %}
+  <meta property="og:title" content="{{ article.meta_title }}" />
+{% else %}
+  <meta property="og:title" content="{{ article.title }}" />
+{% endif %}
+
+{% if article.og_description %}
+  <meta property="og:description" content="{{ article.og_description }}"/>
+{% elif article.meta_description %}
+  <meta property="og:description" content="{{ article.meta_description }}"/>
+{% else %}
+  <meta property="og:description" content="{{ article.lead_in|striptags|cut:'"' }}"/>
+{% endif %}
+
+{% if article.og_image %}
+  <meta property="og:image" content="{{request.scheme}}://{{ request.site }}{{ article.og_image.url }}"/>
+  <meta property="og:image:width" content="{{ article.og_image.width }}"/>
+  <meta property="og:image:height" content="{{ article.og_image.height }}"/>
+{% elif article.featured_image %}
+  <meta property="og:image" content="{{request.scheme}}://{{ request.site }}{{ article.featured_image.url }}"/>
+  <meta property="og:image:width" content="{{ article.featured_image.width }}"/>
+  <meta property="og:image:height" content="{{ article.featured_image.height }}"/>
+{% endif %}
+
+{% if article.twitter_title %}
+  <meta property="twitter:title" content="{{ article.twitter_title }}" />
+{% endif %}
+{% if article.twitter_description %}
+  <meta property="twitter:description" content="{{ article.twitter_description }}" />
+{% endif %}
+{% if article.twitter_image %}
+  <meta property="twitter:image" content="{{request.scheme}}://{{ request.site }}{{ article.twitter_image.url }}"/>
+  <meta property="twitter:image:width" content="{{ article.twitter_image.width }}"/>
+  <meta property="twitter:image:height" content="{{ article.twitter_image.height }}"/>
+{% endif %}
+
+  <meta property="og:type" content="article"/>
+  <meta property="og:article:published_time" content="{{ article.publishing_date|date:'c' }}"/>
+{% for category in article.categories.all %}
+  <meta property="og:article:article:tag" content="{{ category }}"/>
+{% endfor %}
+<meta property="og:url" content="{{request.scheme}}://{{ request.site }}{{ article.get_absolute_url }}" />

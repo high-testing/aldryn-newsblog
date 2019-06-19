@@ -123,13 +123,6 @@ class Article(TranslatedAutoSlugifyMixin,
             blank=True,
             null=True,
         ),
-        og_image=FilerImageField(
-            verbose_name=_('OG Image'),
-            related_name='article_image_og',
-            blank=True,
-            null=True,
-            on_delete=models.PROTECT,
-        ),
         twitter_title=models.CharField(
             max_length=128,
             verbose_name=_('Twitter Title'),
@@ -141,13 +134,6 @@ class Article(TranslatedAutoSlugifyMixin,
             verbose_name=_('Twitter Description'),
             blank=True,
             null=True,
-        ),
-        twitter_image=FilerImageField(
-            verbose_name=_('Twitter Image'),
-            related_name='article_image_twitter',
-            blank=True,
-            null=True,
-            on_delete=models.PROTECT,
         ),
     )
 
@@ -185,6 +171,21 @@ class Article(TranslatedAutoSlugifyMixin,
         blank=True,
         on_delete=models.SET_NULL,
     )
+    og_image = FilerImageField(
+        verbose_name=_('OG Image'),
+        related_name='article_image_og',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+    )
+    twitter_image = FilerImageField(
+        verbose_name=_('Twitter Image'),
+        related_name='article_image_twitter',
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+    )
+
     tags = TaggableManager(blank=True)
 
     # Setting "symmetrical" to False since it's a bit unexpected that if you
